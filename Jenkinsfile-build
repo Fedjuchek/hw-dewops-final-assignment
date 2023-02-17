@@ -12,14 +12,14 @@ pipeline {
                 checkout scm
             }
         }
-        dir("app-sources") {
         stage('Build image') {
-                steps {
+            steps {
+                dir("app-sources") {
                     script {
                         dockerImage = docker.build(imagename, "./build/Dockerfile")
                     }
                 }
-        }
+            }
         }
         stage('Deploy Image') {
             steps {
