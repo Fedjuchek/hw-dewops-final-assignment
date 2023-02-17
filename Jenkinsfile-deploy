@@ -13,29 +13,22 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build image') {
-            dir("app-sources") {
+        stage('Apply Terraform files') {
+            dir("app-sources/deploy") {
                 steps {
-                    script {
-                        dockerImage = docker.build(imagename, "./build/Dockerfile")
-                    }
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f ingress.yaml'
                 }
             }
         }
-        stage('Deploy Image') {
-            steps {
-                script {
-                    docker.withRegistry('', registryCredential) {
-                        dockerImage.push("$BUILD_NUMBER")
-                        dockerImage.push('latest')
-                    }
+        stage('Trigger version update') {
+            dir("app-sources/deploy") {
+                steps {
+                    sh "kubectl set image deployments/k8s-app-deployment-1 k8s-app-1=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                    sh "kubectl set image deployments/k8s-app-deployment-2 k8s-app-2=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                    sh "kubectl set image deployments/k8s-app-deployment-3 k8s-app-3=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                    sh "kubectl set image deployments/k8s-app-deployment-4 k8s-app-4=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
                 }
-            }
-        }
-        stage('Cleanup') {
-            steps {
-                sh "docker rmi $imagename:$BUILD_NUMBER"
-                sh "docker rmi $imagename:latest"
             }
         }
     }

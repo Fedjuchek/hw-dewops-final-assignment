@@ -4,9 +4,6 @@ module "eks-vpc" {
 }
 
 module "eks" {
-  depends_on = [
-    module.eks-vpc
-  ]
   source  = "terraform-aws-modules/eks/aws"
   version = "19.8.0"
 
@@ -16,7 +13,7 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
 
-  vpc_id     = aws_vpc.hw_eks_vpc.id
+  vpc_id     = module.eks-vpc.eks_vpc_id
   subnet_ids = module.eks-vpc.eks_vcp_private_subnet_ids
 
   eks_managed_node_group_defaults = {
@@ -81,21 +78,24 @@ resource "aws_security_group" "rds_sg" {
 }
 
 module "rds" {
-  depends_on = [
-    module.eks-vpc
-  ]
   source = "terraform-aws-modules/rds/aws"
 
-  identifier = "hw-test-rds"
+  identifier = "hwrds"
 
   engine            = "mysql"
-  engine_version    = "8.0.28"
+  engine_version    = "8.0"
   instance_class    = "db.t3.micro"
   allocated_storage = 5
 
-  db_name  = "hw-test-rds"
+  db_name  = "hwrds"
   username = "admin"
   port     = "3306"
+
+   # DB parameter group
+  family = "mysql8.0"
+
+  # DB option group
+  major_engine_version = "8.0"
 
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
 

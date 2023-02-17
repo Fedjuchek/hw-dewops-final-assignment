@@ -1,0 +1,217 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app-deployment-1
+  namespace: default
+  labels:
+    app: k8s-app-1
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: k8s-app-1
+  template:
+    metadata:
+      labels:
+        app: k8s-app-1
+    spec:
+      containers:
+        - name: k8s-app-1
+          image: fedjuchek/hw-final-assignment:16
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "350m"
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 2
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app-deployment-2
+  namespace: default
+  labels:
+    app: k8s-app-2
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: k8s-app-2
+  template:
+    metadata:
+      labels:
+        app: k8s-app-2
+    spec:
+      containers:
+        - name: k8s-app-2
+          image: fedjuchek/hw-final-assignment:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "350m"
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 2
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app-deployment-3
+  namespace: default
+  labels:
+    app: k8s-app-3
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: k8s-app-3
+  template:
+    metadata:
+      labels:
+        app: k8s-app-3
+    spec:
+      containers:
+        - name: k8s-app-3
+          image: fedjuchek/hw-final-assignment:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "350m"
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 2
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app-deployment-4
+  namespace: default
+  labels:
+    app: k8s-app-4
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: k8s-app-4
+  template:
+    metadata:
+      labels:
+        app: k8s-app-4
+    spec:
+      containers:
+        - name: k8s-app-4
+          image: fedjuchek/hw-final-assignment:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "350m"
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 2
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-app-service-1
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-app-1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-app-service-2
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-app-2
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-app-service-3
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-app-3
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-app-service-4
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-app-4
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
