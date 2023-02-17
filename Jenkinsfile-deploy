@@ -6,7 +6,9 @@ pipeline {
         registryCredential = 'fedjuchek-dockerhub'
         dockerImage = ''
     }
-
+    options {
+        withAWS(credentials: 'fediuchek-aws', region: 'us-east-1')
+    }
     stages {
         stage('Git clone') {
             steps {
@@ -15,14 +17,12 @@ pipeline {
         }
         stage('Apply Terraform files') {
                 steps {
-                    withAWS(credentials: 'fediuchek-aws', region: 'us-east-1') {
-                            dir("app-sources/deploy") {
-                                sh 'aws eks --profile default --region us-east-1 update-kubeconfig --name hw-eks-cluster'
-                                sh 'kubectl apply -f deployment.yaml'
-                                sh 'kubectl apply -f ingress.yaml'
-                        }
-                    }   
+                    dir("app-sources/deploy") {
+                        sh 'aws eks --profile default --region us-east-1 update-kubeconfig --name hw-eks-cluster'
+                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f ingress.yaml'
                 }   
+            }   
         }
         stage('Trigger version update') {
                 steps {
