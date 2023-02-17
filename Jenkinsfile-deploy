@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    environment {
+        imagename = "fedjuchek/hw-final-assignment"
+        registryCredential = 'fedjuchek-dockerhub'
+        dockerImage = ''
+    }
+
+    stages {
+        stage('Git clone') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build image') {
+            dir("app-sources") {
+                steps {
+                    script {
+                        dockerImage = docker.build(imagename, "./build/Dockerfile")
+                    }
+                }
+            }
+        }
+        stage('Deploy Image') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                sh "docker rmi $imagename:$BUILD_NUMBER"
+                sh "docker rmi $imagename:latest"
+            }
+        }
+    }
+}
