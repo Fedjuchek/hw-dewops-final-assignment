@@ -2,4 +2,5 @@
 infra/.terraform
 infra/.terraform.lock.hcl
 infra/.terraform.tfstate.lock.info
-archive/*
+README.md
+images/
