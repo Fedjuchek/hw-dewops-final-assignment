@@ -16,6 +16,7 @@ pipeline {
         stage('Apply Terraform files') {
                 steps {
                     dir("app-sources/deploy") {
+                        sh 'aws eks --profile default --region us-east-1 update-kubeconfig --name hw-eks-cluster'
                         sh 'kubectl apply -f deployment.yaml'
                         sh 'kubectl apply -f ingress.yaml'
                     }   
