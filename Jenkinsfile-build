@@ -24,7 +24,7 @@ pipeline {
             steps {
                 dir("app-sources") {
                     script {
-                        dockerImage = docker.build(imagename, "./build/Dockerfile")
+                        dockerImage = docker.build(imagename, "./build")
                     }
                 }
             }
