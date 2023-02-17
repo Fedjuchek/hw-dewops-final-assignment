@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git clone') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Init kubeconfig if required') {
+            steps {
+                dir("app-sources/deploy") {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws eks --region ${params.AWS_REGION} update-kubeconfig --name ${params.EKS_CLUSTER}"
+                    }
+                }
+            }
+        }
+        stage('Apply Terraform files') {
+                steps {
+                    dir("app-sources/deploy") {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh 'kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml'
+                    }
+                }   
+            }   
+        }
+    }
+}

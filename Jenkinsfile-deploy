@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         imagename = "fedjuchek/hw-final-assignment"
-        registryCredential = 'fedjuchek-dockerhub'
-        dockerImage = ''
     }
     stages {
         stage('Git clone') {
@@ -12,11 +10,19 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Init kubeconfig if required') {
+            steps {
+                dir("app-sources/deploy") {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws eks --region ${params.AWS_REGION} update-kubeconfig --name ${params.EKS_CLUSTER}"
+                    }
+                }
+            }
+        }
         stage('Apply Terraform files') {
                 steps {
                     dir("app-sources/deploy") {
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            sh 'aws eks --region us-east-1 update-kubeconfig --name hw-eks-cluster'
                             sh 'kubectl apply -f deployment.yaml'
                             sh 'kubectl apply -f ingress.yaml'
                     }
@@ -27,10 +33,10 @@ pipeline {
                 steps {
                     dir("app-sources/deploy") {
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            sh "kubectl set image deployments/k8s-app-deployment-1 k8s-app-1=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                            sh "kubectl set image deployments/k8s-app-deployment-2 k8s-app-2=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                            sh "kubectl set image deployments/k8s-app-deployment-3 k8s-app-3=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                            sh "kubectl set image deployments/k8s-app-deployment-4 k8s-app-4=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-1 k8s-app-1=${imagename}:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-2 k8s-app-2=${imagename}:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-3 k8s-app-3=${imagename}:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-4 k8s-app-4=${imagename}:${params.DEPLOY_APP_VERSION}"
                         }
                 }
             }
