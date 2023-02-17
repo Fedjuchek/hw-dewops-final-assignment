@@ -26,10 +26,12 @@ pipeline {
         stage('Trigger version update') {
                 steps {
                     dir("app-sources/deploy") {
-                    sh "kubectl set image deployments/k8s-app-deployment-1 k8s-app-1=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                    sh "kubectl set image deployments/k8s-app-deployment-2 k8s-app-2=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                    sh "kubectl set image deployments/k8s-app-deployment-3 k8s-app-3=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
-                    sh "kubectl set image deployments/k8s-app-deployment-4 k8s-app-4=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "fediuchek-aws", accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "kubectl set image deployments/k8s-app-deployment-1 k8s-app-1=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-2 k8s-app-2=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-3 k8s-app-3=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                            sh "kubectl set image deployments/k8s-app-deployment-4 k8s-app-4=fedjuchek/hw-final-assignment:${params.DEPLOY_APP_VERSION}"
+                        }
                 }
             }
         }
