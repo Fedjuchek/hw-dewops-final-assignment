@@ -6,21 +6,20 @@ pipeline {
         registryCredential = 'fedjuchek-dockerhub'
         dockerImage = ''
     }
-
     stages {
         stage('Git clone') {
             steps {
                 checkout scm
             }
         }
+        dir("app-sources") {
         stage('Build image') {
-            dir("app-sources") {
                 steps {
                     script {
                         dockerImage = docker.build(imagename, "./build/Dockerfile")
                     }
                 }
-            }
+        }
         }
         stage('Deploy Image') {
             steps {
